@@ -142,6 +142,14 @@ a:hover {
     text-align: center;
 }
 
+.panel-audio {
+    padding: 10px;
+}
+
+.panel-audio audio {
+    max-width: 100%;
+}
+
 .title {
     font-size: 48px;
     margin: 0 0 16px;

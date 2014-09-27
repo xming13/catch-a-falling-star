@@ -13,6 +13,7 @@
     <meta name="author" content="xming13" />
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="stylesheet" type="text/css" href="css/catch-a-falling-star.css" />
+    <link rel="stylesheet" type="text/css" href="css/toggle-switch.css" />
     <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
 </head>
 
@@ -58,6 +59,12 @@
                 <canvas id="canvas">
                     This text is displayed if your browser does not support HTML5 Canvas.
                 </canvas>
+            </div>
+            <div class="panel-audio">
+                <audio controls preload="none" loop="loop">
+                    <source src="audio/perry-como-catch-a-falling-star.mp3" type="audio/mp3">
+                    Your browser does not support the audio element.
+                </audio>
             </div>
         </div>
     </div>
@@ -106,12 +113,10 @@
         }
     }
 </script>
-<script src="js/catch-a-falling-star.js">
-</script>
+<script src="js/catch-a-falling-star.js"></script>
 <script>
     window.onload = function() {
         $("#panel-game").hide();
-
 
         $(".btn-play").click(function() {
             $("#panel-main").hide();
