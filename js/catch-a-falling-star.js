@@ -109,6 +109,7 @@ XMing.GameStateManager = new function() {
         context = canvas.getContext('2d');
 
         canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+        canvas.addEventListener('touchstart', this.onTouchStart.bind(this), false);
         canvas.addEventListener('touchmove', this.onMouseMove.bind(this), false);
         canvas.addEventListener('click', this.onClick.bind(this), false);
         window.addEventListener("keydown", this.onKeyDown.bind(this), false);
@@ -251,6 +252,12 @@ XMing.GameStateManager = new function() {
                 character.targetX = canvas.width - character.width / 2;
             } else {
                 character.targetX = mousePos.x;
+            }
+        },
+        // handle touch start event
+        this.onTouchStart = function(event) {
+            if (navigator.userAgent.match(/Android/i)) {
+                event.preventDefault();
             }
         },
         // handle click event
