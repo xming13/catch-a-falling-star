@@ -244,7 +244,8 @@ XMing.GameStateManager = new function() {
         },
         // handle mouse move event
         this.onMouseMove = function(event) {
-
+            event.preventDefault();
+            
             var mousePos = this.getMousePos(event);
 
             if (mousePos.x < character.width / 2) {
