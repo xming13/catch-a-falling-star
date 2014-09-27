@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Catch a falling star and put it in your pocket
+    </title>
+    <meta name="description" content="Catch a falling star and put it in your pocket" />
+    <meta name="keywords" content="falling star, game" />
+    <meta name="author" content="xming13" />
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/catch-a-falling-star.css" />
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
+</head>
+
+<body>
+<div class="container">
+    <header class="clearfix">
+            <span>
+          Enjoy
+        </span>
+
+        <h1>
+            Catch a falling star and put it in your pocket
+        </h1>
+        <nav>
+            <a href="https://xming13.github.io/catch-a-falling-star" class="icon-home" data-info="Home">
+                Home
+            </a>
+            <a href="https://github.com/xming13/catch-a-falling-star" target="_blank" class="icon-github" data-info="Github">
+                Github
+            </a>
+        </nav>
+    </header>
+    <div class="main-content">
+        <div class="panel-container" id="panel-container" name="panel-container">
+            <div id="panel-main" class="panel-main">
+                <div class="title">
+                    Catch
+                </div>
+                <div class="subtitle">
+                    falling stars
+                </div>
+                <div class="sprite">
+                    <img src="images/twinkle-star.png" height="100" width="100" />
+                    <img src="images/falling-star.png" height="100" width="100" />
+                </div>
+                <div class="button-holder">
+                    <a class="btn-play">
+                        PLAY
+                    </a>
+                </div>
+            </div>
+            <div id="panel-game" class="panel-game" style="display: none;">
+                <canvas id="canvas">
+                    This text is displayed if your browser does not support HTML5 Canvas.
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery-1.11.0.min.js"></script>
+<script src="js/underscore-min.js"></script>
+<script>
+    // requestAnimFrame browser compatibility
+    window.requestAnimFrame = (function() {
+        return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function(callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+    })();
+
+    // implement wrapText in canvas prototype
+    CanvasRenderingContext2D.prototype.wrapText = function(text, x, y, maxWidth, lineHeight) {
+
+        var lines = text.split("\n");
+
+        for (var i = 0; i < lines.length; i++) {
+
+            var words = lines[i].split(' ');
+            var line = '';
+
+            for (var n = 0; n < words.length; n++) {
+                var testLine = line + words[n] + ' ';
+                var metrics = this.measureText(testLine);
+                var testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    this.fillText(line, x, y);
+                    line = words[n] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+
+            this.fillText(line, x, y);
+            y += lineHeight;
+        }
+    }
+</script>
+<script src="js/catch-a-falling-star.js">
+</script>
+<script>
+    window.onload = function() {
+        $("#panel-game").hide();
+        XMing.GameStateManager.init();
+
+        $(".btn-play").click(function() {
+            $("#panel-main").hide();
+            $("#panel-game").show();
+            $('html, body').animate({
+                scrollTop: $("#panel-container").offset().top
+            }, 'fast');
+
+            XMing.GameStateManager.startGame();
+        });
+    };
+</script>
+<!--<script>-->
+<!--(function(i,s,o,g,r,a,m){-->
+<!--i['GoogleAnalyticsObject']=r;-->
+<!--i[r]=i[r]||function(){-->
+<!--(i[r].q=i[r].q||[]).push(arguments)}-->
+<!--,i[r].l=1*new Date();-->
+<!--a=s.createElement(o),-->
+<!--m=s.getElementsByTagName(o)[0];-->
+<!--a.async=1;-->
+<!--a.src=g;-->
+<!--m.parentNode.insertBefore(a,m)-->
+<!--}-->
+<!--)(window,document,'script','//www.google-analytics.com/analytics.js','ga');-->
+
+<!--ga('create', 'UA-53662868-2', 'auto');-->
+<!--ga('send', 'pageview');-->
+
+<!--</script>-->
+
+</body>
+
+</html>
