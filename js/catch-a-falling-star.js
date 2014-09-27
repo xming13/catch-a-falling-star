@@ -1,150 +1,5 @@
 var XMing = XMing || {};
 
-XMing.Character = function(canvas) {
-    this.x =  canvas.width / 2;
-    this.y = canvas.height / 10 * 9 - canvas.width / 12 / 2;
-    this.targetX = this.x;
-    this.width = canvas.width / 12;
-    this.height = canvas.width / 12;
-    this.velocityX = canvas.width / 300;
-    this.isStepped = false;
-    this.timer = 0;
-};
-XMing.Character.prototype.resize = function(ratioX, ratioY) {
-    this.x *= ratioX;
-    this.y *= ratioY;
-    this.targetX *= ratioX;
-    this.width *= ratioX;
-    this.height *= ratioY;
-    this.velocityX *= ratioX;
-};
-XMing.Character.prototype.update = function() {
-
-    if (this.x < this.targetX) {
-        if (this.x + this.velocityX > this.targetX) {
-            this.x = this.targetX;
-        } else {
-            this.x += this.velocityX;
-        }
-    }
-    if (this.x > this.targetX) {
-        if (this.x - this.velocityX < this.targetX) {
-            this.x = this.targetX;
-        } else {
-            this.x -= this.velocityX;
-        }
-    }
-};
-XMing.Character.prototype.render = function(context) {
-    context.save();
-
-    var img = new Image();
-
-    var numFrame = 10;
-    if (this.x > this.targetX || this.x < this.targetX) {
-        this.timer++;
-        if (this.timer > numFrame) {
-            this.timer /= numFrame;
-            this.isStepped = !this.isStepped;
-        }
-        if (this.isStepped) {
-            img.src = "images/character-left.png"
-        }
-        else {
-            img.src = "images/character-right.png";
-        }
-    }
-    else {
-        img.src = "images/character.png";
-    }
-    context.translate(this.x, this.y);
-    context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
-
-    context.restore();
-};
-
-XMing.TwinkleStar = function(canvas) {
-    var randomSize = _.random(canvas.width / 20);
-
-    this.x = _.random(canvas.width);
-    this.y = _.random(canvas.height / 10 * 4);
-    this.width = randomSize;
-    this.height = randomSize;
-};
-XMing.TwinkleStar.prototype.resize = function(ratioX, ratioY) {
-    this.x *= ratioX;
-    this.y *= ratioY;
-    this.width *= ratioX;
-    this.height *= ratioY;
-};
-XMing.TwinkleStar.prototype.update = function() {
-
-};
-XMing.TwinkleStar.prototype.render = function(context) {
-    context.save();
-
-    var img = new Image();
-    img.src = "images/twinkle-star.png";
-
-    context.globalAlpha = _.random(0.5, 1);
-    context.translate(this.x, this.y);
-    context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
-
-    context.restore();
-};
-
-XMing.FallingStar = function(canvas) {
-    var starSize = _.random(10, canvas.width / 20);
-
-    this.x = _.random(starSize / 2, canvas.width - starSize / 2);
-    this.y = _.random(canvas.height / 10, canvas.height / 10 * 2);
-    this.width = starSize;
-    this.height = starSize;
-    this.velocityY = _.random(2, canvas.height / 200);
-    this.destY = canvas.height / 10 * 9 - this.height / 2;
-    this.isCaught = false;
-    this.isStopped = false;
-    this.isGone = false;
-    this.rotateAngle = 0;
-};
-XMing.FallingStar.prototype.resize = function(ratioX, ratioY) {
-    this.x *= ratioX;
-    this.y *= ratioY;
-    this.width *= ratioX;
-    this.height *= ratioY;
-    this.velocityY *= ratioY;
-};
-XMing.FallingStar.prototype.update = function() {
-    if (this.y < this.destY) {
-        if (this.y + this.velocityY >= this.destY) {
-            this.y = this.destY;
-            this.isStopped = true;
-        } else {
-            this.y += this.velocityY;
-            this.rotateAngle += 2 * Math.PI / 180;
-        }
-    }
-};
-XMing.FallingStar.prototype.render = function(context) {
-    if (!this.isCaught) {
-        context.save();
-
-        context.translate(this.x, this.y);
-        context.rotate(this.rotateAngle);
-        var img = new Image();
-        if (this.isStopped) {
-            context.globalAlpha = 0.5;
-            img.src = "images/star-with-border.png";
-        }
-        else {
-            img.src = "images/falling-star.png";
-        }
-        context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
-
-        context.restore();
-    }
-};
-
 XMing.GameStateManager = new function() {
     // declare variables
     var requestID;
@@ -157,6 +12,7 @@ XMing.GameStateManager = new function() {
     var score = 0;
     var gameTimer;
     var remainingTime = 30;
+    var imageObj = {};
 
     // declare CONSTANTS
     var GAME_STATE_ENUM = {
@@ -176,6 +32,25 @@ XMing.GameStateManager = new function() {
         canvas.addEventListener('click', this.onClick.bind(this), false);
         window.addEventListener("keydown", this.onKeyDown.bind(this), false);
         window.addEventListener('resize', this.resizeCanvas.bind(this), false);
+
+        var imgCharacter = new Image();
+        imgCharacter.src = "images/character.png";
+        imageObj["character"] = imgCharacter;
+        var imgCharacterLeft = new Image();
+        imgCharacterLeft.src = "images/character-left.png";
+        imageObj["character-left"] = imgCharacterLeft;
+        var imgCharacterRight = new Image();
+        imgCharacterRight.src = "images/character-right.png";
+        imageObj["character-right"] = imgCharacterRight;
+        var imgTwinkleStar = new Image();
+        imgTwinkleStar.src = "images/twinkle-star.png";
+        imageObj["twinkle-star"] = imgTwinkleStar;
+        var imgFallingStar = new Image();
+        imgFallingStar.src = "images/falling-star.png";
+        imageObj["falling-star"] = imgFallingStar;
+        var imgStarWithBorder = new Image();
+        imgStarWithBorder.src = "images/star-with-border.png";
+        imageObj["star-with-border"] = imgStarWithBorder;
 
         this.initGame();
         this.update();
@@ -392,6 +267,9 @@ XMing.GameStateManager = new function() {
                 })
             }
         },
+        this.getImage = function(imageName) {
+            return imageObj[imageName];
+        },
         // game status operation
         this.initGame = function() {
             gameState = GAME_STATE_ENUM.INITIAL;
@@ -433,3 +311,147 @@ XMing.GameStateManager = new function() {
             return gameState == GAME_STATE_ENUM.END;
         }
 }
+
+XMing.Character = function(canvas) {
+    this.x =  canvas.width / 2;
+    this.y = canvas.height / 10 * 9 - canvas.width / 12 / 2;
+    this.targetX = this.x;
+    this.width = canvas.width / 12;
+    this.height = canvas.width / 12;
+    this.velocityX = canvas.width / 300;
+    this.isStepped = false;
+    this.timer = 0;
+};
+XMing.Character.prototype.resize = function(ratioX, ratioY) {
+    this.x *= ratioX;
+    this.y *= ratioY;
+    this.targetX *= ratioX;
+    this.width *= ratioX;
+    this.height *= ratioY;
+    this.velocityX *= ratioX;
+};
+XMing.Character.prototype.update = function() {
+
+    if (this.x < this.targetX) {
+        if (this.x + this.velocityX > this.targetX) {
+            this.x = this.targetX;
+        } else {
+            this.x += this.velocityX;
+        }
+    }
+    if (this.x > this.targetX) {
+        if (this.x - this.velocityX < this.targetX) {
+            this.x = this.targetX;
+        } else {
+            this.x -= this.velocityX;
+        }
+    }
+};
+XMing.Character.prototype.render = function(context) {
+    context.save();
+
+    var img;
+
+    var numFrame = 10;
+    if (this.x > this.targetX || this.x < this.targetX) {
+        this.timer++;
+        if (this.timer > numFrame) {
+            this.timer /= numFrame;
+            this.isStepped = !this.isStepped;
+        }
+        if (this.isStepped) {
+            img = XMing.GameStateManager.getImage("character-left");
+        }
+        else {
+            img = XMing.GameStateManager.getImage("character-right");
+        }
+    }
+    else {
+        img = XMing.GameStateManager.getImage("character");
+    }
+    context.translate(this.x, this.y);
+    context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
+
+    context.restore();
+};
+
+XMing.TwinkleStar = function(canvas) {
+    var randomSize = _.random(canvas.width / 20);
+
+    this.x = _.random(canvas.width);
+    this.y = _.random(canvas.height / 10 * 4);
+    this.width = randomSize;
+    this.height = randomSize;
+};
+XMing.TwinkleStar.prototype.resize = function(ratioX, ratioY) {
+    this.x *= ratioX;
+    this.y *= ratioY;
+    this.width *= ratioX;
+    this.height *= ratioY;
+};
+XMing.TwinkleStar.prototype.update = function() {
+
+};
+XMing.TwinkleStar.prototype.render = function(context) {
+    context.save();
+
+    var img = XMing.GameStateManager.getImage("twinkle-star");
+
+    context.globalAlpha = _.random(0.5, 1);
+    context.translate(this.x, this.y);
+    context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
+
+    context.restore();
+};
+
+XMing.FallingStar = function(canvas) {
+    var starSize = _.random(10, canvas.width / 20);
+
+    this.x = _.random(starSize / 2, canvas.width - starSize / 2);
+    this.y = _.random(canvas.height / 10, canvas.height / 10 * 2);
+    this.width = starSize;
+    this.height = starSize;
+    this.velocityY = _.random(2, canvas.height / 200);
+    this.destY = canvas.height / 10 * 9 - this.height / 2;
+    this.isCaught = false;
+    this.isStopped = false;
+    this.isGone = false;
+    this.rotateAngle = 0;
+};
+XMing.FallingStar.prototype.resize = function(ratioX, ratioY) {
+    this.x *= ratioX;
+    this.y *= ratioY;
+    this.width *= ratioX;
+    this.height *= ratioY;
+    this.velocityY *= ratioY;
+};
+XMing.FallingStar.prototype.update = function() {
+    if (this.y < this.destY) {
+        if (this.y + this.velocityY >= this.destY) {
+            this.y = this.destY;
+            this.isStopped = true;
+        } else {
+            this.y += this.velocityY;
+            this.rotateAngle += 2 * Math.PI / 180;
+        }
+    }
+};
+XMing.FallingStar.prototype.render = function(context) {
+    if (!this.isCaught) {
+        context.save();
+
+        context.translate(this.x, this.y);
+        context.rotate(this.rotateAngle);
+        var img;
+        if (this.isStopped) {
+            context.globalAlpha = 0.5;
+            img = XMing.GameStateManager.getImage("star-with-border");
+        }
+        else {
+            img = XMing.GameStateManager.getImage("falling-star");
+        }
+        context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
+
+        context.restore();
+    }
+};
