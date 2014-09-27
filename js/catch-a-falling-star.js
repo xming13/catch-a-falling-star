@@ -109,7 +109,7 @@ XMing.GameStateManager = new function() {
         context = canvas.getContext('2d');
 
         canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);
-        canvas.addEventListener('touchstart', this.onTouchStart.bind(this), false);
+        //canvas.addEventListener('touchstart', this.onTouchStart.bind(this), false);
         canvas.addEventListener('touchmove', this.onMouseMove.bind(this), false);
         canvas.addEventListener('click', this.onClick.bind(this), false);
         window.addEventListener("keydown", this.onKeyDown.bind(this), false);
