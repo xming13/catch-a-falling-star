@@ -244,9 +244,7 @@ XMing.GameStateManager = new function() {
         },
         // handle mouse move event
         this.onMouseMove = function(event) {
-            if (navigator.userAgent.match(/Android/i)) {
-                event.preventDefault();
-            }
+
             var mousePos = this.getMousePos(event);
 
             if (mousePos.x < character.width / 2) {
@@ -259,15 +257,11 @@ XMing.GameStateManager = new function() {
         },
         // handle touch start event
         this.onTouchStart = function(event) {
-            if (navigator.userAgent.match(/Android/i)) {
-                event.preventDefault();
-            }
+
         },
         // handle click event
         this.onClick = function(event) {
-            if (navigator.userAgent.match(/Android/i)) {
-                event.preventDefault();
-            }
+
             var mousePos = this.getMousePos(event);
 
             if (mousePos.x < character.width / 2) {
