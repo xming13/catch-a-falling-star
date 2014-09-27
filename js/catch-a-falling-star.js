@@ -245,6 +245,7 @@ XMing.GameStateManager = new function() {
         this.resizeCanvas = function() {
             var width = canvas.clientWidth;
             var height = canvas.clientHeight;
+            console.log("clientHeight: " + canvas.clientHeight + ", height: " + canvas.height);
 
             if (canvas.width != width ||
                 canvas.height != height) {
@@ -257,7 +258,7 @@ XMing.GameStateManager = new function() {
                 canvas.height = height;
 
                 if (character != null) {
-                    character.resize(ratioX, ratioY);
+                    character.resize(canvas, ratioX, ratioY);
                 }
                 _.each(fallingStars, function(fallingStar) {
                     fallingStar.resize(ratioX, ratioY);
@@ -322,12 +323,13 @@ XMing.Character = function(canvas) {
     this.isStepped = false;
     this.timer = 0;
 };
-XMing.Character.prototype.resize = function(ratioX, ratioY) {
+XMing.Character.prototype.resize = function(canvas, ratioX, ratioY) {
+    console.log(ratioX +", " + ratioY);
     this.x *= ratioX;
-    this.y *= ratioY;
+    this.y = canvas.height / 10 * 9 - canvas.width / 12 / 2;
     this.targetX *= ratioX;
     this.width *= ratioX;
-    this.height *= ratioY;
+    this.height = this.width;
     this.velocityX *= ratioX;
 };
 XMing.Character.prototype.update = function() {
@@ -387,7 +389,7 @@ XMing.TwinkleStar.prototype.resize = function(ratioX, ratioY) {
     this.x *= ratioX;
     this.y *= ratioY;
     this.width *= ratioX;
-    this.height *= ratioY;
+    this.height = this.width;
 };
 XMing.TwinkleStar.prototype.update = function() {
 
@@ -422,7 +424,7 @@ XMing.FallingStar.prototype.resize = function(ratioX, ratioY) {
     this.x *= ratioX;
     this.y *= ratioY;
     this.width *= ratioX;
-    this.height *= ratioY;
+    this.height = this.width;
     this.velocityY *= ratioY;
 };
 XMing.FallingStar.prototype.update = function() {

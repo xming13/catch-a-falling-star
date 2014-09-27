@@ -203,8 +203,9 @@ a:hover {
     outline: none;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
 }
+
 /* Desktops and laptops ----------- */
-@media only screen  and (min-width: 1224px) {
+@media only screen and (min-width: 1224px) {
     .container {
         width: 70%;
     }
