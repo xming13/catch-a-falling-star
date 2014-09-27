@@ -242,16 +242,15 @@ XMing.GameStateManager = new function() {
         },
         // handle mouse move event
         this.onMouseMove = function(event) {
-            //        var mousePos = this.getMousePos(event);
-            //        if (mousePos.x >= canvas.width / 4
-            //            && mousePos.x <= canvas.width / 4 * 3
-            //            && mousePos.y >= canvas.height / 4
-            //            && mousePos.y <= canvas.height / 4 * 3) {
-            //            canvas.style.cursor = "pointer";
-            //        }
-            //        else {
-            //            canvas.style.cursor = "auto";
-            //        }
+            var mousePos = this.getMousePos(event);
+
+            if (mousePos.x < character.width / 2) {
+                character.targetX = character.width / 2;
+            } else if (mousePos.x > canvas.width - character.width / 2) {
+                character.targetX = canvas.width - character.width / 2;
+            } else {
+                character.targetX = mousePos.x;
+            }
         },
         // handle click event
         this.onClick = function(event) {
