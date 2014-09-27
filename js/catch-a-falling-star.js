@@ -2,11 +2,13 @@ var XMing = XMing || {};
 
 XMing.Character = function(canvas) {
     this.x =  canvas.width / 2;
-    this.y = canvas.height / 10 * 9 - canvas.width / 15 / 2;
+    this.y = canvas.height / 10 * 9 - canvas.width / 12 / 2;
     this.targetX = this.x;
-    this.width = canvas.width / 15;
-    this.height = canvas.width / 15;
+    this.width = canvas.width / 12;
+    this.height = canvas.width / 12;
     this.velocityX = canvas.width / 300;
+    this.isStepped = false;
+    this.timer = 0;
 };
 XMing.Character.prototype.resize = function(ratioX, ratioY) {
     this.x *= ratioX;
@@ -37,13 +39,26 @@ XMing.Character.prototype.render = function(context) {
     context.save();
 
     var img = new Image();
-    img.src = "images/character.png";
 
+    var numFrame = 10;
+    if (this.x > this.targetX || this.x < this.targetX) {
+        this.timer++;
+        if (this.timer > numFrame) {
+            this.timer /= numFrame;
+            this.isStepped = !this.isStepped;
+        }
+        if (this.isStepped) {
+            img.src = "images/character-left.png"
+        }
+        else {
+            img.src = "images/character-right.png";
+        }
+    }
+    else {
+        img.src = "images/character.png";
+    }
     context.translate(this.x, this.y);
     context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
-
-//    context.fillStyle = "yellow";
-//    context.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
 
     context.restore();
 };
@@ -86,7 +101,10 @@ XMing.FallingStar = function(canvas) {
     this.width = starSize;
     this.height = starSize;
     this.velocityY = _.random(2, canvas.height / 200);
+    this.destY = canvas.height / 10 * 9 - this.height / 2;
     this.isCaught = false;
+    this.isStopped = false;
+    this.isGone = false;
     this.rotateAngle = 0;
 };
 XMing.FallingStar.prototype.resize = function(ratioX, ratioY) {
@@ -97,8 +115,15 @@ XMing.FallingStar.prototype.resize = function(ratioX, ratioY) {
     this.velocityY *= ratioY;
 };
 XMing.FallingStar.prototype.update = function() {
-    this.y += this.velocityY;
-    this.rotateAngle += 2 * Math.PI / 180;
+    if (this.y < this.destY) {
+        if (this.y + this.velocityY >= this.destY) {
+            this.y = this.destY;
+            this.isStopped = true;
+        } else {
+            this.y += this.velocityY;
+            this.rotateAngle += 2 * Math.PI / 180;
+        }
+    }
 };
 XMing.FallingStar.prototype.render = function(context) {
     if (!this.isCaught) {
@@ -107,7 +132,13 @@ XMing.FallingStar.prototype.render = function(context) {
         context.translate(this.x, this.y);
         context.rotate(this.rotateAngle);
         var img = new Image();
-        img.src = "images/falling-star.png";
+        if (this.isStopped) {
+            context.globalAlpha = 0.5;
+            img.src = "images/star-with-border.png";
+        }
+        else {
+            img.src = "images/falling-star.png";
+        }
         context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
 
         context.restore();
@@ -124,6 +155,8 @@ XMing.GameStateManager = new function() {
     var twinkleStars = [];
     var fallingStars = [];
     var score = 0;
+    var gameTimer;
+    var remainingTime = 30;
 
     // declare CONSTANTS
     var GAME_STATE_ENUM = {
@@ -153,6 +186,9 @@ XMing.GameStateManager = new function() {
 
             if (this.isGameStateStart()) {
 
+                if (remainingTime <= 0) {
+                    this.endGame();
+                }
                 twinkleStars = _.filter(twinkleStars, function(twinkleStar) {
                     return _.random(200) != 50;
                 });
@@ -163,7 +199,7 @@ XMing.GameStateManager = new function() {
                 }
 
                 fallingStars = _.filter(fallingStars, function(fallingStar) {
-                    return fallingStar.y < canvas.height / 10 * 9 && !fallingStar.isCaught
+                    return !fallingStar.isGone && !fallingStar.isCaught
                 });
 
                 if (_.random(50) == 25) {
@@ -173,7 +209,7 @@ XMing.GameStateManager = new function() {
                 character.update();
                 _.each(fallingStars, function(fallingStar) {
                     fallingStar.update();
-                    if (fallingStar.x >= character.x - character.width / 2 && fallingStar.x <= character.x + character.width / 2
+                    if (!fallingStar.isStopped && fallingStar.x >= character.x - character.width / 2 && fallingStar.x <= character.x + character.width / 2
                         && fallingStar.y >= character.y - character.height / 2 && fallingStar.y <= character.y + character.height / 2) {
 
                         fallingStar.isCaught = true;
@@ -187,7 +223,7 @@ XMing.GameStateManager = new function() {
         this.render = function() {
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (this.isGameStateStart()) {
+            if (this.isGameStateStart() || this.isGameStateEnd()) {
                 character.render(context);
 
                 _.each(fallingStars, function(fallingStar) {
@@ -203,22 +239,35 @@ XMing.GameStateManager = new function() {
                 context.fillRect(0, baseY, canvas.width, canvas.height - baseY);
                 context.restore();
 
+                this.renderTime();
                 this.renderScore();
-
-                if (this.isGameStateEnd()) {
-                    context.save();
-                    context.fillStyle = "rgba(0,0,0,.5)";
-                    context.fillRect(0, 0, canvas.width, canvas.height);
-                    context.fillStyle = "rgba(255,255,255,.5)";
-                    context.fillRect(canvas.width / 4, canvas.height / 4, canvas.width / 4 * 2, canvas.height / 4 * 2);
-                    context.font = "30pt Calibri";
-                    context.textAlign = "center";
-                    context.textBaseline = "top";
-                    context.fillStyle = "rgba(0,0,0,1)";
-                    context.wrapText("Game over \n Try again", canvas.width / 2, canvas.height / 4, canvas.width / 2, canvas.height / 4);
-                    context.restore();
-                }
             }
+            if (this.isGameStateEnd()) {
+                context.save();
+                context.fillStyle = "rgba(0,0,0,.5)";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.fillStyle = "rgba(255,255,255,.5)";
+                context.fillRect(canvas.width / 8, canvas.height / 8, canvas.width / 8 * 6  , canvas.height / 8 * 6);
+                context.font = canvas.width / 4 * 2 / 12 + "pt Calibri";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
+                context.fillStyle = "black";
+                context.wrapText("\nCongratulations! \n You have collected " + score + " stars!\n Try again!",
+                    canvas.width / 2, canvas.height / 8, canvas.width / 8 * 6, canvas.height / 8 * 6 / 4);
+                context.restore();
+            }
+        },
+        // render time at the top left corner
+        this.renderTime = function() {
+            context.save();
+
+            context.font = canvas.width / 20 + "pt Calibri";
+            context.textAlign = "left";
+            context.textBaseline = "top";
+            context.fillStyle = "white";
+            context.fillText("Time left: " + remainingTime, 10, 0);
+
+            context.restore();
         },
         // render score at the top right corner
         this.renderScore = function() {
@@ -273,16 +322,17 @@ XMing.GameStateManager = new function() {
         },
         // handle mouse move event
         this.onMouseMove = function(event) {
-            event.preventDefault();
 
-            var mousePos = this.getMousePos(event);
+            if (this.isGameStateStart()) {
+                var mousePos = this.getMousePos(event);
 
-            if (mousePos.x < character.width / 2) {
-                character.targetX = character.width / 2;
-            } else if (mousePos.x > canvas.width - character.width / 2) {
-                character.targetX = canvas.width - character.width / 2;
-            } else {
-                character.targetX = mousePos.x;
+                if (mousePos.x < character.width / 2) {
+                    character.targetX = character.width / 2;
+                } else if (mousePos.x > canvas.width - character.width / 2) {
+                    character.targetX = canvas.width - character.width / 2;
+                } else {
+                    character.targetX = mousePos.x;
+                }
             }
         },
         // handle touch start event
@@ -291,19 +341,20 @@ XMing.GameStateManager = new function() {
         },
         // handle click event
         this.onClick = function(event) {
-
             var mousePos = this.getMousePos(event);
 
-            if (mousePos.x < character.width / 2) {
-                character.targetX = character.width / 2;
-            } else if (mousePos.x > canvas.width - character.width / 2) {
-                character.targetX = canvas.width - character.width / 2;
-            } else {
-                character.targetX = mousePos.x;
+            if (this.isGameStateStart()) {
+                if (mousePos.x < character.width / 2) {
+                    character.targetX = character.width / 2;
+                } else if (mousePos.x > canvas.width - character.width / 2) {
+                    character.targetX = canvas.width - character.width / 2;
+                } else {
+                    character.targetX = mousePos.x;
+                }
             }
-
-            if (mousePos.x >= canvas.width / 4 && mousePos.x <= canvas.width / 4 * 3 && mousePos.y >= canvas.height / 4 && mousePos.y <= canvas.height / 4 * 3) {
-                if (this.isGameStateInitial() || this.isGameStateEnd()) {
+            if (this.isGameStateInitial() || this.isGameStateEnd()) {
+                if (mousePos.x >= canvas.width / 4 && mousePos.x <= canvas.width / 4 * 3
+                    && mousePos.y >= canvas.height / 4 && mousePos.y <= canvas.height / 4 * 3) {
                     this.startGame();
                 }
             }
@@ -344,10 +395,11 @@ XMing.GameStateManager = new function() {
         // game status operation
         this.initGame = function() {
             gameState = GAME_STATE_ENUM.INITIAL;
+
         },
         this.startGame = function() {
-
             gameState = GAME_STATE_ENUM.START;
+
             this.resizeCanvas();
             character = new XMing.Character(canvas);
             twinkleStars = [];
@@ -357,9 +409,17 @@ XMing.GameStateManager = new function() {
             }
             fallingStars = [];
             score = 0;
+            remainingTime = 30;
+
+            gameTimer = setInterval(function() {
+               remainingTime--;
+            }, 1000);
         },
         this.endGame = function() {
             gameState = GAME_STATE_ENUM.END;
+            character.targetX = character.x;
+            clearInterval(gameTimer);
+            gameTimer = null;
         },
 
         // check game state

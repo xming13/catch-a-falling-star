@@ -111,7 +111,7 @@
 <script>
     window.onload = function() {
         $("#panel-game").hide();
-        XMing.GameStateManager.init();
+
 
         $(".btn-play").click(function() {
             $("#panel-main").hide();
@@ -119,7 +119,7 @@
             $('html, body').animate({
                 scrollTop: $("#panel-container").offset().top
             }, 'fast');
-
+            XMing.GameStateManager.init();
             XMing.GameStateManager.startGame();
         });
     };
