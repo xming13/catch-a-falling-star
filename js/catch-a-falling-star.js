@@ -173,7 +173,7 @@ XMing.GameStateManager = new function() {
         context.save();
         var img = new Image();
         img.src = "images/falling-star.png";
-        context.translate(canvas.width / 20 * 16, canvas.width / 20 / 3);
+        context.translate(canvas.width / 20 * 17, canvas.width / 20 / 3);
         context.drawImage(img, 0, 0, canvas.width / 20, canvas.width / 20);
         context.translate(canvas.width / 20, -canvas.width / 20 / 3);
         context.font = canvas.width / 20 + "pt Calibri";
