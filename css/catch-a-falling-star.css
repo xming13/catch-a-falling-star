@@ -21,8 +21,13 @@
     clear: both;
 }
 
-body, html { font-size: 100%; padding: 0; margin: 0;}
+body, html {
+    font-size: 100%;
+    padding: 0;
+    margin: 0;
+}
 
+/* Main */
 body {
     background: #333;
     color: #fff;
@@ -103,6 +108,7 @@ a:hover {
 .container > header nav a:hover {
     background: #555;
 }
+
 .container > header nav a:hover:before {
     color: #fff;
 }
@@ -142,12 +148,8 @@ a:hover {
     text-align: center;
 }
 
-.panel-audio {
-    padding: 10px;
-}
-
-.panel-audio audio {
-    max-width: 100%;
+.panel-main {
+    margin-bottom: 10px;
 }
 
 .title {
@@ -189,6 +191,10 @@ a:hover {
     outline: 0px none;
 }
 
+.panel-game {
+    margin-bottom: 10px;
+}
+
 #canvas {
     /*min-height: 400px;*/
     /*min-width: 300px;*/
@@ -203,13 +209,52 @@ a:hover {
     -ms-user-select: none;
     user-select: none;
     outline: none;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
+    /* mobile webkit */
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+
+.panel-audio {
+    margin-bottom: 10px;
+}
+
+.panel-audio audio {
+    max-width: 100%;
+}
+
+.panel-lyrics {
+    padding: 0 10%;
+}
+
+.lyrics-anchor {
+    margin-bottom: 10px;
+}
+
+#show-hide-lyrics {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.lyrics {
+    border: 1px solid white;
+    border-radius: 5%;
+    background: #666;
+    padding: 5%;
+}
+
+.lyrics-title {
+    font-size: 32px;
+    margin: 0 0 16px;
 }
 
 /* Desktops and laptops ----------- */
 @media only screen and (min-width: 1224px) {
     .container {
         width: 70%;
+    }
+
+    .lyrics-title {
+        font-size: 48px;
+        margin: 0 0 16px;
     }
 }
 

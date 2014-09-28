@@ -9,6 +9,7 @@ XMing.GameStateManager = new function() {
     var character;
     var twinkleStars = [];
     var fallingStars = [];
+    var messages = [];
     var score = 0;
     var gameTimer;
     var remainingTime = 30;
@@ -54,267 +55,303 @@ XMing.GameStateManager = new function() {
 
         this.initGame();
         this.update();
-    },
-        // The main loop where everything happens
-        this.update = function() {
-            requestID = requestAnimFrame(this.update.bind(this));
+    };
 
-            if (this.isGameStateStart()) {
+    // The main loop where everything happens
+    this.update = function() {
+        requestID = requestAnimFrame(this.update.bind(this));
 
-                if (remainingTime <= 0) {
-                    this.endGame();
-                }
-                twinkleStars = _.filter(twinkleStars, function(twinkleStar) {
-                    return _.random(200) != 50;
-                });
-                for (var i = 0; i < 100; i++) {
-                    if (_.random(200) == 50) {
-                        twinkleStars.push(new XMing.TwinkleStar(canvas));
-                    }
-                }
+        if (this.isGameStateStart()) {
 
-                fallingStars = _.filter(fallingStars, function(fallingStar) {
-                    return !fallingStar.isGone && !fallingStar.isCaught
-                });
-
-                if (_.random(50) == 25) {
-                    fallingStars.push(new XMing.FallingStar(canvas));
-                }
-
-                character.update();
-                _.each(fallingStars, function(fallingStar) {
-                    fallingStar.update();
-                    if (!fallingStar.isStopped && fallingStar.x >= character.x - character.width / 2 && fallingStar.x <= character.x + character.width / 2
-                        && fallingStar.y >= character.y - character.height / 2 && fallingStar.y <= character.y + character.height / 2) {
-
-                        fallingStar.isCaught = true;
-                        score++;
-                    }
-                });
+            if (remainingTime <= 0) {
+                this.endGame();
             }
-            this.render();
-        },
-        // render method
-        this.render = function() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (this.isGameStateStart() || this.isGameStateEnd()) {
-                character.render(context);
+            character.update();
 
-                _.each(fallingStars, function(fallingStar) {
-                    fallingStar.render(context);
-                });
-                _.each(twinkleStars, function(twinkleStar) {
-                    twinkleStar.render(context);
-                });
-
-                context.save();
-                context.fillStyle = "white";
-                var baseY = canvas.height / 10 * 9;
-                context.fillRect(0, baseY, canvas.width, canvas.height - baseY);
-                context.restore();
-
-                this.renderTime();
-                this.renderScore();
+            twinkleStars = _.filter(twinkleStars, function() {
+                return _.random(200) != 50;
+            });
+            for (var i = 0; i < 100; i++) {
+                if (_.random(200) == 50) {
+                    twinkleStars.push(new XMing.TwinkleStar(canvas));
+                }
             }
-            if (this.isGameStateEnd()) {
-                context.save();
-                context.fillStyle = "rgba(0,0,0,.5)";
-                context.fillRect(0, 0, canvas.width, canvas.height);
-                context.fillStyle = "rgba(255,255,255,.5)";
-                context.fillRect(canvas.width / 8, canvas.height / 8, canvas.width / 8 * 6  , canvas.height / 8 * 6);
-                context.font = canvas.width / 4 * 2 / 12 + "pt Calibri";
-                context.textAlign = "center";
-                context.textBaseline = "middle";
-                context.fillStyle = "black";
-                context.wrapText("\nCongratulations! \n You have collected " + score + " stars!\n Try again!",
-                    canvas.width / 2, canvas.height / 8, canvas.width / 8 * 6, canvas.height / 8 * 6 / 4);
-                context.restore();
+
+            fallingStars = _.filter(fallingStars, function(fallingStar) {
+                return !fallingStar.isGone && !fallingStar.isCaught;
+            });
+
+            if (_.random(50) == 25) {
+                fallingStars.push(new XMing.FallingStar(canvas));
             }
-        },
-        // render time at the top left corner
-        this.renderTime = function() {
+
+            messages = _.filter(messages, function(message) {
+                return message.alpha > 0;
+            });
+            _.each(messages, function(message) {
+                message.update();
+            });
+
+            _.each(fallingStars, function(fallingStar) {
+                fallingStar.update();
+                if (!fallingStar.isStopped && fallingStar.x >= character.x - character.width / 2 && fallingStar.x <= character.x + character.width / 2 && fallingStar.y >= character.y - character.height / 2 && fallingStar.y <= character.y + character.height / 2) {
+
+                    fallingStar.isCaught = true;
+                    messages.push(new XMing.Message(character.x, character.y - character.height / 2, canvas.width / 30));
+                    score++;
+                }
+            });
+        } else if (this.isGameStateEnd()) {
+            messages = _.filter(messages, function(message) {
+                return message.alpha > 0;
+            });
+            _.each(messages, function(message) {
+                message.update();
+            });
+        }
+        this.render();
+    };
+
+    // render method
+    this.render = function() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (this.isGameStateStart() || this.isGameStateEnd()) {
+            character.render(context);
+
+            _.each(fallingStars, function(fallingStar) {
+                fallingStar.render(context);
+            });
+            _.each(twinkleStars, function(twinkleStar) {
+                twinkleStar.render(context);
+            });
+            _.each(messages, function(message) {
+                message.render(context);
+            });
+
             context.save();
-
-            context.font = canvas.width / 20 + "pt Calibri";
-            context.textAlign = "left";
-            context.textBaseline = "top";
             context.fillStyle = "white";
-            context.fillText("Time left: " + remainingTime, 10, 0);
-
+            var baseY = canvas.height / 10 * 9;
+            context.fillRect(0, baseY, canvas.width, canvas.height - baseY);
             context.restore();
-        },
-        // render score at the top right corner
-        this.renderScore = function() {
+
+            this.renderTime();
+            this.renderScore();
+        }
+        if (this.isGameStateEnd()) {
             context.save();
-            var img = new Image();
-            img.src = "images/falling-star.png";
-            context.translate(canvas.width / 20 * 16, canvas.width / 20 / 3);
-            context.drawImage(img, 0, 0, canvas.width / 20, canvas.width / 20);
-            context.translate(canvas.width / 20, -canvas.width / 20 / 3);
-            context.font = canvas.width / 20 + "pt Calibri";
-            context.textAlign = "left";
-            context.textBaseline = "top";
-            context.fillStyle = "white";
-            context.fillText(":", 0, 0);
-            context.translate(canvas.width / 20 / 2, 0);
-            context.textAlign = "left";
-            context.fillText(score, 0, 0);
+            context.fillStyle = "rgba(0,0,0,.5)";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = "rgba(255,255,255,.5)";
+            context.fillRect(canvas.width / 8, canvas.height / 8, canvas.width / 8 * 6, canvas.height / 8 * 6);
+            context.font = canvas.width / 4 * 2 / 12 + "pt Calibri";
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.fillStyle = "black";
+            context.wrapText("\nCongratulations! \n You have collected " + score + " stars!\n Try again!",
+                canvas.width / 2, canvas.height / 8, canvas.width / 8 * 6, canvas.height / 8 * 6 / 4);
             context.restore();
-        },
-        // handle key down event
-        this.onKeyDown = function(event) {
-            var charCode = event.charCode || event.keyCode;
+        }
+    };
 
-            if (charCode >= 47 && charCode <= 90) {
-                charCode = decodeURI('%' + (charCode).toString(16)).toLowerCase();
+    // render time at the top left corner
+    this.renderTime = function() {
+        context.save();
+
+        context.font = canvas.width / 20 + "pt Calibri";
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        context.fillStyle = "white";
+        context.fillText("Time left: " + remainingTime, 10, 0);
+
+        context.restore();
+    };
+
+    // render score at the top right corner
+    this.renderScore = function() {
+        context.save();
+        var img = new Image();
+        img.src = "images/falling-star.png";
+        context.translate(canvas.width / 20 * 16, canvas.width / 20 / 3);
+        context.drawImage(img, 0, 0, canvas.width / 20, canvas.width / 20);
+        context.translate(canvas.width / 20, -canvas.width / 20 / 3);
+        context.font = canvas.width / 20 + "pt Calibri";
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        context.fillStyle = "white";
+        context.fillText(":", 0, 0);
+        context.translate(canvas.width / 20 / 2, 0);
+        context.textAlign = "left";
+        context.fillText("" + score, 0, 0);
+        context.restore();
+    };
+
+    // handle key down event
+    this.onKeyDown = function(event) {
+        var charCode = event.charCode || event.keyCode;
+
+        if (charCode >= 47 && charCode <= 90) {
+            charCode = decodeURI('%' + (charCode).toString(16)).toLowerCase();
+        }
+
+        if (this.isGameStateInitial() || this.isGameStateEnd()) {
+            // enter key
+            if (charCode == 13) {
+                this.startGame();
             }
+        } else if (this.isGameStateStart()) {
 
-            if (this.isGameStateInitial() || this.isGameStateEnd()) {
-                // enter key
-                if (charCode == 13) {
-                    this.startGame();
-                }
-            } else if (this.isGameStateStart()) {
-
-                // left arrow
-                if (charCode == 37) {
-                    if (character.x - 30 * character.velocityX < character.width / 2) {
-                        character.targetX = character.width / 2;
-                    } else {
-                        character.targetX = character.x - 30 * character.velocityX;
-                    }
-                }
-                // right arrow
-                if (charCode == 39) {
-                    if (character.x + 30 * character.velocityX > canvas.width - character.width / 2) {
-                        character.targetX = canvas.width - character.width / 2;
-                    } else {
-                        character.targetX = character.x + 30 * character.velocityX;
-                    }
-                }
-            }
-        },
-        // handle mouse move event
-        this.onMouseMove = function(event) {
-
-            if (this.isGameStateStart()) {
-                var mousePos = this.getMousePos(event);
-
-                if (mousePos.x < character.width / 2) {
+            // left arrow
+            if (charCode == 37) {
+                if (character.x - 30 * character.velocityX < character.width / 2) {
                     character.targetX = character.width / 2;
-                } else if (mousePos.x > canvas.width - character.width / 2) {
+                } else {
+                    character.targetX = character.x - 30 * character.velocityX;
+                }
+            }
+            // right arrow
+            if (charCode == 39) {
+                if (character.x + 30 * character.velocityX > canvas.width - character.width / 2) {
                     character.targetX = canvas.width - character.width / 2;
                 } else {
-                    character.targetX = mousePos.x;
+                    character.targetX = character.x + 30 * character.velocityX;
                 }
             }
-        },
-        // handle touch start event
-        this.onTouchStart = function(event) {
+        }
+    };
 
-        },
-        // handle click event
-        this.onClick = function(event) {
+    // handle mouse move event
+    this.onMouseMove = function(event) {
+
+        if (this.isGameStateStart()) {
             var mousePos = this.getMousePos(event);
 
-            if (this.isGameStateStart()) {
-                if (mousePos.x < character.width / 2) {
-                    character.targetX = character.width / 2;
-                } else if (mousePos.x > canvas.width - character.width / 2) {
-                    character.targetX = canvas.width - character.width / 2;
-                } else {
-                    character.targetX = mousePos.x;
-                }
+            if (mousePos.x < character.width / 2) {
+                character.targetX = character.width / 2;
+            } else if (mousePos.x > canvas.width - character.width / 2) {
+                character.targetX = canvas.width - character.width / 2;
+            } else {
+                character.targetX = mousePos.x;
             }
-            if (this.isGameStateInitial() || this.isGameStateEnd()) {
-                if (mousePos.x >= canvas.width / 4 && mousePos.x <= canvas.width / 4 * 3
-                    && mousePos.y >= canvas.height / 4 && mousePos.y <= canvas.height / 4 * 3) {
-                    this.startGame();
-                }
-            }
-        },
-        // get mouse position in canvas
-        this.getMousePos = function(event) {
-            var rect = canvas.getBoundingClientRect();
-            return {
-                x: event.clientX - rect.left,
-                y: event.clientY - rect.top
-            };
-        },
-        this.resizeCanvas = function() {
-            var width = canvas.clientWidth;
-            var height = canvas.clientHeight;
-            console.log("clientHeight: " + canvas.clientHeight + ", height: " + canvas.height);
-
-            if (canvas.width != width ||
-                canvas.height != height) {
-
-                var ratioX = width / canvas.width;
-                var ratioY = height / canvas.height;
-
-                // Change the size of the canvas to match the size it's being displayed
-                canvas.width = width;
-                canvas.height = height;
-
-                if (character != null) {
-                    character.resize(canvas, ratioX, ratioY);
-                }
-                _.each(fallingStars, function(fallingStar) {
-                    fallingStar.resize(ratioX, ratioY);
-                })
-                _.each(twinkleStars, function(twinkleStar) {
-                    twinkleStar.resize(ratioX, ratioY);
-                })
-            }
-        },
-        this.getImage = function(imageName) {
-            return imageObj[imageName];
-        },
-        // game status operation
-        this.initGame = function() {
-            gameState = GAME_STATE_ENUM.INITIAL;
-
-        },
-        this.startGame = function() {
-            gameState = GAME_STATE_ENUM.START;
-
-            this.resizeCanvas();
-            character = new XMing.Character(canvas);
-            twinkleStars = [];
-
-            while (twinkleStars.length < 50) {
-                twinkleStars.push(new XMing.TwinkleStar(canvas));
-            }
-            fallingStars = [];
-            score = 0;
-            remainingTime = 30;
-
-            gameTimer = setInterval(function() {
-               remainingTime--;
-            }, 1000);
-        },
-        this.endGame = function() {
-            gameState = GAME_STATE_ENUM.END;
-            character.targetX = character.x;
-            clearInterval(gameTimer);
-            gameTimer = null;
-        },
-
-        // check game state
-        this.isGameStateInitial = function() {
-            return gameState == GAME_STATE_ENUM.INITIAL;
-        },
-        this.isGameStateStart = function() {
-            return gameState == GAME_STATE_ENUM.START;
-        },
-        this.isGameStateEnd = function() {
-            return gameState == GAME_STATE_ENUM.END;
         }
-}
+    };
+
+    // handle touch start event
+    this.onTouchStart = function(event) {
+
+    };
+
+    // handle click event
+    this.onClick = function(event) {
+        var mousePos = this.getMousePos(event);
+
+        if (this.isGameStateStart()) {
+            if (mousePos.x < character.width / 2) {
+                character.targetX = character.width / 2;
+            } else if (mousePos.x > canvas.width - character.width / 2) {
+                character.targetX = canvas.width - character.width / 2;
+            } else {
+                character.targetX = mousePos.x;
+            }
+        }
+        if (this.isGameStateInitial() || this.isGameStateEnd()) {
+            if (mousePos.x >= canvas.width / 4 && mousePos.x <= canvas.width / 4 * 3 && mousePos.y >= canvas.height / 4 && mousePos.y <= canvas.height / 4 * 3) {
+                this.startGame();
+            }
+        }
+    };
+
+    // get mouse position in canvas
+    this.getMousePos = function(event) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    };
+
+    this.resizeCanvas = function() {
+        var width = canvas.clientWidth;
+        var height = canvas.clientHeight;
+
+        if (canvas.width != width ||
+            canvas.height != height) {
+
+            var ratioX = width / canvas.width;
+            var ratioY = height / canvas.height;
+
+            // Change the size of the canvas to match the size it's being displayed
+            canvas.width = width;
+            canvas.height = height;
+
+            if (character != null) {
+                character.resize(canvas, ratioX, ratioY);
+            }
+            _.each(fallingStars, function(fallingStar) {
+                fallingStar.resize(ratioX, ratioY);
+            });
+            _.each(twinkleStars, function(twinkleStar) {
+                twinkleStar.resize(ratioX, ratioY);
+            });
+            _.each(messages, function(message) {
+                message.resize(ratioX, ratioY);
+            });
+        }
+    };
+
+    this.getImage = function(imageName) {
+        return imageObj[imageName];
+    };
+
+    // game status operation
+    this.initGame = function() {
+        gameState = GAME_STATE_ENUM.INITIAL;
+    };
+
+    this.startGame = function() {
+        gameState = GAME_STATE_ENUM.START;
+
+        this.resizeCanvas();
+        character = new XMing.Character(canvas);
+        twinkleStars = [];
+
+        while (twinkleStars.length < 50) {
+            twinkleStars.push(new XMing.TwinkleStar(canvas));
+        }
+        fallingStars = [];
+        messages = [];
+        score = 0;
+        remainingTime = 30;
+
+        gameTimer = setInterval(function() {
+            remainingTime--;
+        }, 1000);
+    };
+
+    this.endGame = function() {
+        gameState = GAME_STATE_ENUM.END;
+        character.targetX = character.x;
+        clearInterval(gameTimer);
+        gameTimer = null;
+    };
+
+    // check game state
+    this.isGameStateInitial = function() {
+        return gameState == GAME_STATE_ENUM.INITIAL;
+    };
+
+    this.isGameStateStart = function() {
+        return gameState == GAME_STATE_ENUM.START;
+    };
+
+    this.isGameStateEnd = function() {
+        return gameState == GAME_STATE_ENUM.END;
+    };
+};
 
 XMing.Character = function(canvas) {
-    this.x =  canvas.width / 2;
+    this.x = canvas.width / 2;
     this.y = canvas.height / 10 * 9 - canvas.width / 12 / 2;
     this.targetX = this.x;
     this.width = canvas.width / 12;
@@ -324,7 +361,7 @@ XMing.Character = function(canvas) {
     this.timer = 0;
 };
 XMing.Character.prototype.resize = function(canvas, ratioX, ratioY) {
-    console.log(ratioX +", " + ratioY);
+    console.log(ratioX + ", " + ratioY);
     this.x *= ratioX;
     this.y = canvas.height / 10 * 9 - canvas.width / 12 / 2;
     this.targetX *= ratioX;
@@ -353,8 +390,8 @@ XMing.Character.prototype.render = function(context) {
     context.save();
 
     var img;
-
     var numFrame = 10;
+
     if (this.x > this.targetX || this.x < this.targetX) {
         this.timer++;
         if (this.timer > numFrame) {
@@ -363,12 +400,10 @@ XMing.Character.prototype.render = function(context) {
         }
         if (this.isStepped) {
             img = XMing.GameStateManager.getImage("character-left");
-        }
-        else {
+        } else {
             img = XMing.GameStateManager.getImage("character-right");
         }
-    }
-    else {
+    } else {
         img = XMing.GameStateManager.getImage("character");
     }
     context.translate(this.x, this.y);
@@ -444,16 +479,45 @@ XMing.FallingStar.prototype.render = function(context) {
 
         context.translate(this.x, this.y);
         context.rotate(this.rotateAngle);
+
         var img;
         if (this.isStopped) {
             context.globalAlpha = 0.5;
             img = XMing.GameStateManager.getImage("star-with-border");
-        }
-        else {
+        } else {
             img = XMing.GameStateManager.getImage("falling-star");
         }
         context.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
 
+        context.restore();
+    }
+};
+
+XMing.Message = function(x, y, fontSize) {
+    this.x = x;
+    this.y = y;
+    this.text = "+ 1";
+    this.alpha = 1.0;
+    this.fontSize = fontSize;
+};
+XMing.Message.prototype.resize = function(ratioX, ratioY) {
+    this.x *= ratioX;
+    this.y *= ratioY;
+    this.fontSize *= ratioX;
+};
+XMing.Message.prototype.update = function() {
+    this.y--;
+    this.alpha -= 0.01;
+};
+XMing.Message.prototype.render = function(context) {
+    if (this.alpha > 0) {
+        context.save();
+        context.globalAlpha = this.alpha;
+        context.font = this.fontSize + "pt Calibri";
+        context.textAlign = "left";
+        context.textBaseline = "bottom";
+        context.fillStyle = "white";
+        context.fillText(this.text, this.x, this.y);
         context.restore();
     }
 };

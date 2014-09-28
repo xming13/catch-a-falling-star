@@ -42,7 +42,7 @@
                     Catch
                 </div>
                 <div class="subtitle">
-                    falling stars
+                    Falling Stars
                 </div>
                 <div class="sprite">
                     <img src="images/character.png" height="100" width="100" />
@@ -64,6 +64,61 @@
                     <source src="audio/perry-como-catch-a-falling-star.mp3" type="audio/mpeg">
                     Your browser does not support the audio element.
                 </audio>
+            </div>
+            <div class="panel-lyrics">
+                <div class="lyrics-anchor">
+                    <a id="show-hide-lyrics">Show lyrics</a>
+                </div>
+                <div class="lyrics" style="display:none;">
+                    <div class="lyrics-title">Catch a falling star</div>
+                    <p>
+                        Catch a falling star and put it in your pocket
+                        <br>Never let it fade away
+                        <br>Catch a falling star and put it in your pocket
+                        <br>Save it for a rainy day
+                    </p>
+                    <p>
+                        For love may come and tap you on the shoulder some starless night
+                        <br>Just in case you feel you want to hold her
+                        <br>You'll have a pocketful of starlight
+                    </p>
+                    <p>
+                        Catch a falling star and put it in your pocket
+                        <br>Never let it fade away
+                        <br>Catch a falling star and put it in your pocket
+                        <br>Save it for a rainy day
+                    </p>
+                    <p>
+                        For love may come and tap you on the shoulder some starless night
+                        <br>Just in case you feel you want to hold her
+                        <br>You'll have a pocketful of starlight
+                        <br>(Pocketful of starlight, hm,hm,hm,hm,hm,hm)
+                    </p>
+                    <p>
+                        Catch a falling star and put it in your pocket
+                        <br>Never let it fade away
+                        <br>Catch a falling star and put it in your pocket
+                        <br>Save it for a rainy day
+                    </p>
+                    <p>
+                        (Save it for a rainy, save it for a rainy, rainy, rainy, day)
+                    </p>
+                    <p>
+                        For when your troubles start multiplyin' and they just might
+                        <br>It's easy to forget them without tryin'
+                        <br>With just a pocketful of starlight
+                    </p>
+                    <p>
+                        Catch a falling star and put it in your pocket
+                        <br>Never let it fade away
+                        <br>Catch a falling star and put it in your pocket
+                        <br>Save it for a rainy day
+                    </p>
+                    <p>
+                        (Save it for a rainy day)
+                        <br>Save it for a rainy day
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -115,16 +170,28 @@
 <script src="js/catch-a-falling-star.js"></script>
 <script>
     window.onload = function() {
-        $("#panel-game").hide();
 
+        XMing.GameStateManager.init();
+        
         $(".btn-play").click(function() {
             $("#panel-main").hide();
             $("#panel-game").show();
             $('html, body').animate({
                 scrollTop: $("#panel-container").offset().top
             }, 'fast');
-            XMing.GameStateManager.init();
+
             XMing.GameStateManager.startGame();
+        });
+
+        $("#show-hide-lyrics").click(function() {
+            if ($(".lyrics").is(":visible")) {
+                $(".lyrics").hide();
+                $("#show-hide-lyrics").html("Show lyrics");
+            } else {
+                $(".lyrics").show();
+                $("#show-hide-lyrics").html("Hide lyrics");
+            }
+
         });
     };
 </script>
