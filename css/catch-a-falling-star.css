@@ -41,12 +41,8 @@ a {
     text-decoration: none;
 }
 
-a:hover {
-    color: #000;
-}
-
 .container {
-    width: 90%;
+    width: 70%;
     margin: 0 auto;
 }
 
@@ -83,6 +79,8 @@ a:hover {
     width: 40px;
     height: 40px;
     background: #fff;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
     border-radius: 50%;
     color: transparent;
     margin: 0 2px;
@@ -139,6 +137,8 @@ a:hover {
 
 .main-content {
     background: #444;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
     border-radius: 10px;
     margin: 0 auto 30px;
 }
@@ -180,6 +180,8 @@ a:hover {
     color: #fff;
     background-color: #222;
     border: 1px solid #333;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -236,31 +238,37 @@ a:hover {
 
 .lyrics {
     border: 1px solid white;
-    border-radius: 5%;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
     background: #666;
     padding: 5%;
 }
 
 .lyrics-title {
-    font-size: 32px;
+    font-size: 48px;
     margin: 0 0 16px;
 }
 
 /* Desktops and laptops ----------- */
 @media only screen and (min-width: 1224px) {
+}
+
+@media only screen
+and (min-device-width : 320px)
+and (max-device-width : 480px) {
+    /* Styles */
     .container {
-        width: 70%;
+        width: 90%;
+    }
+
+    .panel-lyrics {
+        padding: 0;
     }
 
     .lyrics-title {
-        font-size: 48px;
+        font-size: 28px;
         margin: 0 0 16px;
-    }
-}
-
-@media only screen and (orientation: landscape) {
-    #canvas {
-        min-height: auto;
     }
 }
 
