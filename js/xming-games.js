@@ -3,3 +3,5 @@ xming_preload_image.src = "https://xming13.github.io/catch-a-falling-star/images
 xming_preload_image.src = "https://xming13.github.io/catch-a-falling-star/images/icons/icon-easter-bunnies-hover.png";
 xming_preload_image.src = "https://xming13.github.io/catch-a-falling-star/images/icons/icon-catch-a-falling-star.png";
 xming_preload_image.src = "https://xming13.github.io/catch-a-falling-star/images/icons/icon-catch-a-falling-star-hover.png";
+xming_preload_image.src = "https://xming13.github.io/catch-a-falling-star/images/icons/icon-spot-the-special-one.png";
+xming_preload_image.src = "https://xming13.github.io/catch-a-falling-star/images/icons/icon-spot-the-special-one-hover.png";

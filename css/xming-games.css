@@ -57,6 +57,32 @@
     content: " ";
     display: block;
 }
+
+/* Spot The Special One */
+.xming-games .icon-spot-the-special-one {
+    border: 4px solid #ff0;
+}
+
+.xming-games .icon-spot-the-special-one:before {
+    background: url(https://xming13.github.io/catch-a-falling-star/images/icons/icon-spot-the-special-one.png) 50% 50% no-repeat;
+    background-size: 50%;
+}
+
+.xming-games .icon-spot-the-special-one:after {
+    color: #444;
+    background: #ffcf00;
+    width: 152px;
+}
+
+.xming-games .icon-spot-the-special-one:hover {
+    background: #b2b271;
+}
+
+.xming-games .icon-spot-the-special-one:hover:before {
+    background: url(https://xming13.github.io/catch-a-falling-star/images/icons/icon-spot-the-special-one-hover.png) 50% 50% no-repeat;
+    background-size: 50%;
+}
+
 /* Easter Bunnies */
 .xming-games .icon-easter-bunnies {
     border: 4px solid #104AC5;
