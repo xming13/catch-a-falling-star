@@ -11,8 +11,9 @@
 }
 
 .xming-games span.label {
+    float: left;
     color: #000;
-    line-height: 38px;
+    line-height: 40px;
 }
 
 .xming-games .icon-game {
