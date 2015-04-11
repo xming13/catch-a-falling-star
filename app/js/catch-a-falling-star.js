@@ -24,6 +24,24 @@ XMing.GameStateManager = new function() {
     };
 
     this.init = function() {
+        var self = this;
+
+        FastClick.attach(document.body);
+
+        $(".btn-play").click(function() {
+            self.startGame();
+        });
+
+        $("#show-hide-lyrics").click(function() {
+            if ($(".lyrics").is(":visible")) {
+                $(".lyrics").hide();
+                $("#show-hide-lyrics").html("Show lyrics");
+            } else {
+                $(".lyrics").show();
+                $("#show-hide-lyrics").html("Hide lyrics");
+            }
+        });
+
         canvas = document.getElementById('canvas');
         context = canvas.getContext('2d');
 
@@ -312,11 +330,14 @@ XMing.GameStateManager = new function() {
     this.startGame = function() {
         gameState = GAME_STATE_ENUM.START;
 
+        $("#panel-main").hide();
+        $("#panel-game").show();
+
         this.resizeCanvas();
         character = new XMing.Character(canvas);
         twinkleStars = [];
 
-        while (twinkleStars.length < 50) {
+        while (twinkleStars.length < 40) {
             twinkleStars.push(new XMing.TwinkleStar(canvas));
         }
         fallingStars = [];
@@ -327,6 +348,10 @@ XMing.GameStateManager = new function() {
         gameTimer = setInterval(function() {
             remainingTime--;
         }, 1000);
+
+        $('html, body').animate({
+            scrollTop: $("#panel-container").offset().top
+        }, 'fast');
     };
 
     this.endGame = function() {
@@ -521,3 +546,7 @@ XMing.Message.prototype.render = function(context) {
         context.restore();
     }
 };
+
+$(function() {
+    XMing.GameStateManager.init();
+})
