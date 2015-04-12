@@ -2,6 +2,9 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        clean: {
+            img: ['images', 'audio']
+        },
         copy: {
             main: {
                 files: [
@@ -25,6 +28,7 @@ module.exports = function (grunt) {
         }
     });
 
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -33,6 +37,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-usemin');
 
     grunt.registerTask('build', [
+        'clean',
         'jsbeautifier',
         'copy:main',
         'useminPrepare',
